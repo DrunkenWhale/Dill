@@ -15,7 +15,10 @@ func RegisterStaticResourceServerFromConfigFile() {
 
 func RegisterStaticResourceServer(rules []config.Rule) {
 	for _, rule := range rules {
-		RegisterSingleStaticResourceServer(rule)
+		if rule.Type == "static" {
+			RegisterSingleStaticResourceServer(rule)
+			log.Printf("[%v] Register Static Server: allow methods: %v from [ %-v ] mapping to [ %-v ]", "INFO", rule.Methods, rule.Route, rule.Dest)
+		}
 	}
 }
 
@@ -36,7 +39,7 @@ func RegisterSingleStaticResourceServer(rule config.Rule) {
 		writer.WriteHeader(405)
 		_, err := writer.Write([]byte("Method Not Allowed"))
 		if err != nil {
-			log.Printf("[ %-7v ] %v", "ERROR", err)
+			log.Printf("[%v] %v", "ERROR", err)
 			return
 		}
 	})
@@ -44,14 +47,14 @@ func RegisterSingleStaticResourceServer(rule config.Rule) {
 
 func staticServerFunctionFactory(rule config.Rule) func(writer http.ResponseWriter, request *http.Request) {
 	return func(writer http.ResponseWriter, request *http.Request) {
-		log.Printf("[ %-7v ] request [ %-v ]", "INFO", request.URL)
+		log.Printf("[%v] request [ %-v ]   method: [ %v ]", "INFO", request.URL, request.Method)
 		path := request.URL.Path
 		tempPathSplitArray := strings.SplitN(path, rule.Route, 2)
 		if len(tempPathSplitArray) <= 1 {
 			writer.WriteHeader(404)
 			_, err := writer.Write([]byte("Page Not Found"))
 			if err != nil {
-				log.Printf("[ %-7v ] %v", "ERROR", err)
+				log.Printf("[%v] %v", "ERROR", err)
 				return
 			}
 			return
@@ -60,22 +63,23 @@ func staticServerFunctionFactory(rule config.Rule) func(writer http.ResponseWrit
 		if tempPath == "" {
 			file, err := os.Open(rule.Dest)
 			if err != nil {
-				log.Printf("[ %-7v ] %v", "ERROR", err)
+				log.Printf("[%v] %v", "ERROR", err)
 				writer.WriteHeader(404)
 				_, err := writer.Write([]byte("Page Not Found"))
 				if err != nil {
-					log.Printf("[ %-7v ] %v", "ERROR", err)
+					log.Printf("[%v] %v", "ERROR", err)
 				}
 				return
 			}
+			defer file.Close()
 			bytes, err := ioutil.ReadAll(file)
 			if err != nil {
-				log.Printf("[ %-7v ] %v", "ERROR", err)
+				log.Printf("[%v] %v", "ERROR", err)
 				return
 			}
 			_, err = writer.Write(bytes)
 			if err != nil {
-				log.Printf("[ %-7v ] %v", "ERROR", err)
+				log.Printf("[%v] %v", "ERROR", err)
 				return
 			}
 			return
@@ -88,22 +92,23 @@ func staticServerFunctionFactory(rule config.Rule) func(writer http.ResponseWrit
 		}
 		file, err := os.Open(legalAbsolutePath)
 		if err != nil {
-			log.Printf("[ %-7v ] %v", "ERROR", err)
+			log.Printf("[%v] %v", "ERROR", err)
 			writer.WriteHeader(404)
 			_, err := writer.Write([]byte("Page Not Found"))
 			if err != nil {
-				log.Printf("[ %-7v ] %v", "ERROR", err)
+				log.Printf("[%v] %v", "ERROR", err)
 			}
 			return
 		}
+		defer file.Close()
 		bytes, err := ioutil.ReadAll(file)
 		if err != nil {
-			log.Printf("[ %-7v ] %v", "ERROR", err)
+			log.Printf("[%v] %v", "ERROR", err)
 			return
 		}
 		_, err = writer.Write(bytes)
 		if err != nil {
-			log.Printf("[ %-7v ] %v", "ERROR", err)
+			log.Printf("[%v] %v", "ERROR", err)
 			return
 		}
 	}

@@ -8,6 +8,23 @@
         "GET"
       ],
       "dest": "C:\\Users\\Nephren\\Data\\Project\\Hibiscus"
+    },
+    {
+      "route": "/v2/",
+      "type": "static",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dest": "C:\\Users\\Nephren\\Data\\Project\\Hibiscus\\config"
+    },
+    {
+      "route": "/v3/",
+      "type": "static",
+      "methods": [
+        "*"
+      ],
+      "dest": "C:\\Users\\Nephren\\Data\\Project\\Hibiscus\\static"
     }
   ]
 }
