@@ -2,12 +2,12 @@
   "port": 80,
   "rule": [
     {
-      "route": "/test/",
+      "route": "/",
       "type": "static",
       "methods": [
         "GET"
       ],
-      "dest": "C:\\Users\\Nephren\\Data\\Project\\Hibiscus"
+      "dest": "C:\\Users\\Nephren\\Data\\Pycharm\\FlaskProject\\flaskProject377\\html\\dist"
     },
     {
       "route": "/v2/",
