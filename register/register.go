@@ -1,21 +1,26 @@
 package register
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 )
 
-func RegisterReverseProxy(proxyData map[string]string) {
-	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		client := http.Client{}
-		forwardPath, ok := proxyData[request.URL.Path]
-		if !ok {
-			log.Printf("unregister path: [%v]", request.URL.Path)
-			return
-		}
-		req, err := http.NewRequest(request.Method, forwardPath, request.Body)
+var client = http.Client{
+	Transport: &http.Transport{
+		MaxIdleConns: 20,
+	},
+}
+
+func ReverseProxyRegister(proxyData map[string]string) {
+	for k, v := range proxyData {
+		registerSingleReverseProxy(k, v)
+	}
+}
+
+func registerSingleReverseProxy(src string, dst string) {
+	http.HandleFunc(src, func(writer http.ResponseWriter, request *http.Request) {
+		req, err := http.NewRequest(request.Method, dst, request.Body)
 		if err != nil {
 			log.Print(err)
 			return
@@ -29,11 +34,17 @@ func RegisterReverseProxy(proxyData map[string]string) {
 			writer.Header().Set(k, v[0])
 		}
 		bytes, err := ioutil.ReadAll(res.Body)
+		err = res.Body.Close()
+		if err != nil {
+			log.Fatalln(err)
+			return
+		}
 		_, err = writer.Write(bytes)
 		if err != nil {
 			log.Print(err)
+			log.Printf("can't forward from %v to %v", src, dst)
 			return
 		}
-		fmt.Printf("forward from %v to %v", request.URL, req.URL)
+		log.Printf("forward from %v to %v", src, dst)
 	})
 }

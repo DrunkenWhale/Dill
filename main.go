@@ -10,7 +10,7 @@ import (
 const port string = "80"
 
 func main() {
-	register.RegisterReverseProxy(data.Data)
+	register.ReverseProxyRegister(data.Data)
 	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		log.Fatalln(err)
