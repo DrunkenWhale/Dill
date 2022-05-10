@@ -1,17 +1,16 @@
 package main
 
 import (
-	"Hibiscus/data"
-	"Hibiscus/register"
+	"Hibiscus/config"
+	"Hibiscus/static"
 	"log"
 	"net/http"
+	"strconv"
 )
 
-const port string = "80"
-
 func main() {
-	register.ReverseProxyRegister(data.Data)
-	err := http.ListenAndServe(":"+port, nil)
+	static.RegisterStaticResourceServerFromConfigFile()
+	err := http.ListenAndServe(":"+strconv.Itoa(config.Port()), nil)
 	if err != nil {
 		log.Fatalln(err)
 		return

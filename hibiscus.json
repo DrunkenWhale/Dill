@@ -1,0 +1,13 @@
+{
+  "port": 80,
+  "rule": [
+    {
+      "route": "/test/",
+      "type": "static",
+      "methods": [
+        "GET"
+      ],
+      "dest": "C:\\Users\\Nephren\\Data\\Project\\Hibiscus"
+    }
+  ]
+}
